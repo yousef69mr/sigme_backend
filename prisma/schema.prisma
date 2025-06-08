@@ -30,11 +30,90 @@ model User {
   avatar String?
   gender String?
 
-  role UserRole? @default(USER)
-  // contacts Contact[]
+  role    UserRole?    @default(USER)
+  devices DeviceInfo[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+model Location {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  label     String?
+
+  connectivityLogs ConnectivityInfo[]
+}
+
+model ConnectivityInfo {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  connectivityType String // 'wifi', 'mobile', 'none', etc.
+  isConnected      Boolean
+  ipAddress        String? // e.g., 192.168.1.2
+  wifiName         String? // SSID (if applicable)
+  wifiBSSID        String? // BSSID (MAC address of AP)
+
+  device   DeviceInfo @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId String     @db.ObjectId // foreign key to DeviceInfo
+
+  locationId String?   @db.ObjectId
+  location   Location? @relation(fields: [locationId], references: [id])
+
+  mobileNetworkInfo   MobileNetworkInfo? @relation(fields: [mobileNetworkInfoId], references: [id])
+  mobileNetworkInfoId String?            @db.ObjectId
+
+  timestamp DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([mobileNetworkInfoId])
+  @@index([locationId])
+}
+
+model MobileNetworkInfo {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  carrier     String? // e.g., "STC"
+  networkType String? // e.g., "LTE", "5G"
+  signalLevel Int? // 0–4
+  signalDbm   Int? // e.g., -85 dBm
+  asuLevel    Int? // optional
+  mcc         String? // Mobile Country Code
+  mnc         String? // Mobile Network Code
+
+  ConnectivityInfo ConnectivityInfo[]
+  
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model DeviceInfo {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  platform         String // 'android', 'ios', 'web', etc.
+  model            String?
+  brand            String?
+  manufacturer     String?
+  systemName       String?
+  systemVersion    String?
+  sdkInt           Int? // Only for Android
+  isPhysicalDevice Boolean?
+
+  deviceId            String? // identifierForVendor or Android ID
+  userAgent           String? // Only for Web
+  hardwareConcurrency Int? // Only for Web
+  deviceMemory        Int? // Only for Web (in GB)
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @db.ObjectId // optional link to your User model
+
+  connectivityLogs ConnectivityInfo[] // One-to-many relation
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // enum ContactTypeEnum {

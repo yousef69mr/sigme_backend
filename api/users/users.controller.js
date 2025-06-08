@@ -18,22 +18,13 @@ router.get("/active_user", verifyToken, (req, res) => {
                     where: {
                         id: user.id
                     },
-                    include: {
-                        favoriteStores: {
-                            include: {
-                                store: true
-                            }
-                        }
-                    }
                 })
 
                 if (!activeUser) {
                     return res.status(404).json({ message: "User not found" })
                 }
 
-                const userFavoriteStores = activeUser.favoriteStores.map(store => ({ ...store.store, id: store.id }));
-
-                const formattedUser = { ...activeUser, favoriteStores: userFavoriteStores }
+                const formattedUser = { ...activeUser }
                 // console.log(authData)
                 res.status(200).json(formattedUser);
             } catch (e) {
@@ -49,11 +40,7 @@ router.get("/", verifyToken, (req, res) => {
         if (err) {
             res.status(403).json({ message: 'Invalid token' });
         } else {
-            const users = await db.user.findMany({
-                include: {
-                    favoriteStores: true
-                }
-            });
+            const users = await db.user.findMany();
             res.status(200).json(users);
         }
     })
@@ -124,7 +111,6 @@ router.patch("/:userId", verifyToken, async (req, res) => {
                 email,
                 password,
                 phone,
-                level: parseInt(level),
                 gender,
                 avatar
             }
