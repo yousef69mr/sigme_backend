@@ -30,12 +30,30 @@ model User {
   avatar String?
   gender String?
 
-  role      UserRole?    @default(USER)
-  devices   DeviceInfo[]
-  locations Location[]
+  role          UserRole?      @default(USER)
+  devices       DeviceInfo[]
+  userLocations UserLocation[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+model UserLocation {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  label      String?
+  notes      String? // Optional user-defined notes
+  userId     String  @db.ObjectId
+  locationId String  @db.ObjectId
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, locationId, label])
+  @@index([userId])
+  @@index([locationId])
 }
 
 model Location {
@@ -43,15 +61,11 @@ model Location {
   latitude  Float
   longitude Float
   accuracy  Float?
-  label     String?
 
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String? @db.ObjectId
-
+  userLocations    UserLocation[]
   connectivityLogs ConnectivityInfo[]
 
-  @@unique([userId, latitude, longitude])
-  @@index([userId])
+  @@unique([latitude, longitude])
 }
 
 model ConnectivityInfo {
@@ -112,7 +126,7 @@ model DeviceInfo {
   hardwareConcurrency Int? // Only for Web
   deviceMemory        Int? // Only for Web (in GB)
 
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String? @db.ObjectId // optional link to your User model
 
   connectivityLogs ConnectivityInfo[] // One-to-many relation

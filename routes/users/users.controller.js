@@ -6,6 +6,20 @@ import { verifyToken } from '../../lib/auth.js'
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/users/active_user:
+ *   get:
+ *     summary: Get the currently active user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: The active user
+ *       403:
+ *         description: Forbidden
+ */
 router.get("/active_user", verifyToken, (req, res) => {
 
     jwt.verify(req.token, process.env.JWT_SECRET, async (err, authData) => {
@@ -34,7 +48,18 @@ router.get("/active_user", verifyToken, (req, res) => {
     })
 })
 
-
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of users
+ */
 router.get("/", verifyToken, (req, res) => {
     jwt.verify(req.token, process.env.JWT_SECRET, async (err, _) => {
         if (err) {
@@ -46,6 +71,47 @@ router.get("/", verifyToken, (req, res) => {
     })
 })
 
+
+/**
+ * @swagger
+ * /api/users/{userId}:
+ *   patch:
+ *     summary: Update user info
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               gender:
+ *                 type: string
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: User updated
+ *       401:
+ *         description: Unauthorized
+ */
 router.patch("/:userId", verifyToken, async (req, res) => {
     const userId = req.params.userId; // Retrieve id=require(params
     const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
@@ -123,9 +189,30 @@ router.patch("/:userId", verifyToken, async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * /api/users/{userId}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     responses:
+ *       204:
+ *         description: User deleted
+ *       401:
+ *         description: Unauthorized
+ */
 router.delete("/:userId", verifyToken, async (req, res) => {
     try {
-        const userId = req.params.userId; // Retrieve id=require(params
+        const userId = req.params.userId; 
         const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
         const { user } = decodedToken;
 
