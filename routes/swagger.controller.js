@@ -52,27 +52,36 @@ const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
 router.use('/api-docs', express.static(swaggerUiPath, { index: false }));
 
 router.get('/api-docs', (req, res) => {
-    res.send(`
-    <!DOCTYPE html><html><head>
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
       <title>API Docs</title>
-      <link rel="stylesheet" href="/api-docs/swagger-ui.css" />
-    </head><body>
+      <link rel="stylesheet" href="/swagger-ui/swagger-ui.css">
+    </head>
+    <body>
       <div id="swagger-ui"></div>
-      <script src="/api-docs/swagger-ui-bundle.js"></script>
-      <script src="/api-docs/swagger-ui-standalone-preset.js"></script>
+      <script src="/swagger-ui/swagger-ui-bundle.js"></script>
+      <script src="/swagger-ui/swagger-ui-standalone-preset.js"></script>
       <script>
-        window.onload = () => {
+        window.onload = function() {
           SwaggerUIBundle({
             url: '/swagger.json',
             dom_id: '#swagger-ui',
-            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-            layout: "StandaloneLayout",
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
           });
         };
       </script>
-    </body></html>
+    </body>
+    </html>
   `);
 });
+
 
 
 
