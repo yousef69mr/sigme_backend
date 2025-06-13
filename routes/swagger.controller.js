@@ -47,8 +47,6 @@ const swaggerSpec = swaggerJsdoc({
     ], // path to files with JSDoc comments
 });
 
-const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
-
 router.use('/swagger-ui', express.static(swaggerUiDist.getAbsoluteFSPath()));
 
 router.get('/api-docs', (req, res) => {
