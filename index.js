@@ -33,7 +33,7 @@ app.use('/api/devices', devicesInfoRouter);
 app.use('/api/locations', locationRouter);
 app.use('/api/connectivity', connectivityRouter);
 app.use('/api/mobile-network-info', mobileNetworkInfoRouter);
-app.use(swaggerRoutes);
+app.use('/api',swaggerRoutes);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
