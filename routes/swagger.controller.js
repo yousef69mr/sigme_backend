@@ -49,16 +49,16 @@ const swaggerSpec = swaggerJsdoc({
 
 const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
 
-router.use('/api-docs', express.static(swaggerUiPath, { index: false }));
+router.use('/swagger-ui', express.static(swaggerUiDist.getAbsoluteFSPath()));
 
 router.get('/api-docs', (req, res) => {
-  res.send(`
+  const html = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <title>API Docs</title>
-      <link rel="stylesheet" href="/swagger-ui/swagger-ui.css">
+      <link rel="stylesheet" href="/swagger-ui/swagger-ui.css" />
     </head>
     <body>
       <div id="swagger-ui"></div>
@@ -69,17 +69,15 @@ router.get('/api-docs', (req, res) => {
           SwaggerUIBundle({
             url: '/swagger.json',
             dom_id: '#swagger-ui',
-            presets: [
-              SwaggerUIBundle.presets.apis,
-              SwaggerUIStandalonePreset
-            ],
-            layout: "StandaloneLayout"
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            layout: 'StandaloneLayout'
           });
         };
       </script>
     </body>
     </html>
-  `);
+  `;
+  res.send(html);
 });
 
 
