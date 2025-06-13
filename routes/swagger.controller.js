@@ -73,7 +73,7 @@ router.get('/api-docs', (req, res) => {
         };
       </script>
     </body>
-    </html>
+    </html>c
   `;
   res.send(html);
 });
