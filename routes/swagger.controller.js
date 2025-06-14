@@ -42,7 +42,8 @@ const swaggerSpec = swaggerJsdoc({
         security: [{ bearerAuth: [] }],
     },
     apis: [
-        path.resolve(__dirname, '../routes/users/users.controller.js')
+        path.resolve(__dirname, '../routes/auth.controller.js'),
+        path.resolve(__dirname, '../routes/users.controller.js'),
     ], // path to files with JSDoc comments
 });
 

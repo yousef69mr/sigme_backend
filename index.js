@@ -2,8 +2,8 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import fileUpload from 'express-fileupload';
-import userRouter from './routes/users/users.controller.js'
-import authRouter from './routes/auth/auth.controller.js'
+import userRouter from './routes/users.controller.js'
+import authRouter from './routes/auth.controller.js'
 import devicesInfoRouter from './routes/devices/devices.controller.js'
 import locationRouter from './routes/locations/locations.controller.js'
 import mobileNetworkInfoRouter from './routes/mobile-network/mobile-network.controller.js'
