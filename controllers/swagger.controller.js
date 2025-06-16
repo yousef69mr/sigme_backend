@@ -37,13 +37,36 @@ const swaggerSpec = swaggerJsdoc({
                     scheme: 'bearer',
                     bearerFormat: 'JWT',
                 },
-            },
+            }
         },
         security: [{ bearerAuth: [] }],
+        schemas: {
+            DeviceInfo: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', example: "uuid-or-mongo-id" },
+                    platform: { type: 'string' },
+                    model: { type: 'string' },
+                    brand: { type: 'string' },
+                    manufacturer: { type: 'string' },
+                    systemName: { type: 'string' },
+                    systemVersion: { type: 'string' },
+                    sdkInt: { type: 'integer' },
+                    isPhysicalDevice: { type: 'boolean' },
+                    deviceId: { type: 'string' },
+                    userAgent: { type: 'string' },
+                    hardwareConcurrency: { type: 'integer' },
+                    deviceMemory: { type: 'number' },
+                    userId: { type: 'string' },
+                    createdAt: { type: 'string', format: 'date-time' },
+                }
+            }
+        },
     },
     apis: [
-        path.resolve(__dirname, '../routes/auth.controller.js'),
-        path.resolve(__dirname, '../routes/users.controller.js'),
+        path.resolve(__dirname, '../controllers/auth.controller.js'),
+        path.resolve(__dirname, '../controllers/users.controller.js'),
+        path.resolve(__dirname, '../controllers/devices.controller.js'),
     ], // path to files with JSDoc comments
 });
 

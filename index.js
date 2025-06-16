@@ -2,13 +2,13 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import fileUpload from 'express-fileupload';
-import userRouter from './routes/users.controller.js'
-import authRouter from './routes/auth.controller.js'
-import devicesInfoRouter from './routes/devices/devices.controller.js'
-import locationRouter from './routes/locations/locations.controller.js'
-import mobileNetworkInfoRouter from './routes/mobile-network/mobile-network.controller.js'
-import connectivityRouter from './routes/connectivity/connectivity.controller.js'
-import swaggerRoutes from './routes/swagger.controller.js'
+import userRouter from './controllers/users.controller.js'
+import authRouter from './controllers/auth.controller.js'
+import devicesInfoRouter from './controllers/devices.controller.js'
+import locationRouter from './controllers/locations/locations.controller.js'
+import mobileNetworkInfoRouter from './controllers/mobile-network/mobile-network.controller.js'
+import connectivityRouter from './controllers/connectivity/connectivity.controller.js'
+import swaggerRoutes from './controllers/swagger.controller.js'
 
 import { PORT } from './lib/constants/config.js'
 

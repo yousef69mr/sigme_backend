@@ -57,7 +57,7 @@ model UserLocation {
 }
 
 model Location {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
   latitude  Float
   longitude Float
   accuracy  Float?
@@ -134,6 +134,7 @@ model DeviceInfo {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, deviceId])
   @@index([userId])
 }
 
