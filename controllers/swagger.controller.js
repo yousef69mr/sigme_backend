@@ -14,6 +14,8 @@ const __dirname = dirname(__filename);
 
 const router = express.Router();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const swaggerSpec = swaggerJsdoc({
     definition: {
         openapi: '3.0.0',
@@ -22,14 +24,20 @@ const swaggerSpec = swaggerJsdoc({
             version: '1.0.0',
             description: 'Your API description',
         },
-        servers: [
-            {
-                url: 'http://localhost:'.concat(PORT), // your local dev server
-            },
-            {
-                url: 'https://sigme-backend.vercel.app'
-            }
-        ],
+        servers: isProduction
+            ? [
+                {
+                    url: 'https://sigme-backend.vercel.app',
+                },
+            ]
+            : [
+                {
+                    url: `http://localhost:${PORT}`,
+                },
+                {
+                    url: 'https://sigme-backend.vercel.app',
+                },
+            ],
         components: {
             securitySchemes: {
                 bearerAuth: {
