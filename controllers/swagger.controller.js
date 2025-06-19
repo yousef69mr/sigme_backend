@@ -56,7 +56,6 @@ const swaggerSpec = swaggerJsdoc({
                         hardwareConcurrency: { type: 'integer' },
                         deviceMemory: { type: 'number' },
                         userId: { type: 'string' },
-                        createdAt: { type: 'string', format: 'date-time' },
                     }
                 }
             },
@@ -67,6 +66,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, '../controllers/auth.controller.js'),
         path.resolve(__dirname, '../controllers/users.controller.js'),
         path.resolve(__dirname, '../controllers/devices.controller.js'),
+        path.resolve(__dirname, '../controllers/connectivity.controller.js'),
     ], // path to files with JSDoc comments
 });
 

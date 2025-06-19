@@ -121,6 +121,8 @@ model DeviceInfo {
   sdkInt           Int? // Only for Android
   isPhysicalDevice Boolean?
 
+  lastPinged DateTime? // updated on each ping
+
   deviceId            String? // identifierForVendor or Android ID
   userAgent           String? // Only for Web
   hardwareConcurrency Int? // Only for Web

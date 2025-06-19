@@ -269,24 +269,19 @@ router.get('/user-devices', verifyToken, async (req, res) => {
 router.get('/:deviceId', verifyToken, async (req, res) => {
   const user = req.user;
   const { deviceId } = req.params;
-
-  const isMyDevice = await db.deviceInfo.findFirst({
-    where: {
-      id: deviceId,
-      userId: user.id
-    },
-    include: { connectivityLogs: true },
-  });
-
-  if (!isMyDevice && user.role !== 'ADMIN') {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
   try {
-    const device = await db.deviceInfo.findUnique({
-      where: { id: req.params.id },
+    const device = await db.deviceInfo.findFirst({
+      where: {
+        id: deviceId,
+        userId: user.id
+      },
       include: { connectivityLogs: true },
     });
+
+    if (!device && user.role !== 'ADMIN') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     if (!device) return res.status(404).json({ error: 'Device not found' });
     res.json(device);
   } catch (e) {
@@ -416,6 +411,97 @@ router.delete('/:deviceId', verifyToken, async (req, res) => {
     res.json({ message: 'Device deleted' });
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/devices/{deviceId}/logs:
+ *   get:
+ *     summary: Get connectivity logs for a specific device
+ *     tags: 
+ *       - DeviceInfo
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: deviceId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the device to fetch logs for
+ *     responses:
+ *       200:
+ *         description: List of connectivity logs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   connectivityType:
+ *                     type: string
+ *                     example: wifi
+ *                   isConnected:
+ *                     type: boolean
+ *                   ipAddress:
+ *                     type: string
+ *                   wifiName:
+ *                     type: string
+ *                   wifiBSSID:
+ *                     type: string
+ *                   timestamp:
+ *                     type: string
+ *                     format: date-time
+ *                   location:
+ *                     type: object
+ *                     nullable: true
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       latitude:
+ *                         type: number
+ *                       longitude:
+ *                         type: number
+ *                       accuracy:
+ *                         type: number
+ *                   mobileNetworkInfo:
+ *                     type: object
+ *                     nullable: true
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       carrier:
+ *                         type: string
+ *                       networkType:
+ *                         type: string
+ *                       signalLevel:
+ *                         type: integer
+ *                       signalDbm:
+ *                         type: integer
+ *                       mcc:
+ *                         type: string
+ *                       mnc:
+ *                         type: string
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:deviceId/logs', async (req, res) => {
+  const { deviceId } = req.params;
+
+  try {
+    const connectivityLogs = await db.connectivityInfo.findMany({
+      where: {
+        deviceId
+      },
+      include: { location: true, mobileNetworkInfo: true },
+    });
+    res.json(connectivityLogs);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
   }
 });
 

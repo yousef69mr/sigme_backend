@@ -7,7 +7,7 @@ import authRouter from './controllers/auth.controller.js'
 import devicesInfoRouter from './controllers/devices.controller.js'
 import locationRouter from './controllers/locations/locations.controller.js'
 import mobileNetworkInfoRouter from './controllers/mobile-network/mobile-network.controller.js'
-import connectivityRouter from './controllers/connectivity/connectivity.controller.js'
+import connectivityRouter from './controllers/connectivity.controller.js'
 import swaggerRoutes from './controllers/swagger.controller.js'
 
 import { PORT } from './lib/constants/config.js'
