@@ -57,10 +57,46 @@ const swaggerSpec = swaggerJsdoc({
                         deviceMemory: { type: 'number' },
                         userId: { type: 'string' },
                     }
-                }
+                },
+                ConnectivityLog: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        connectivityType: { type: 'string', example: 'wifi' },
+                        isConnected: { type: 'boolean' },
+                        ipAddress: { type: 'string', nullable: true },
+                        wifiName: { type: 'string', nullable: true },
+                        wifiBSSID: { type: 'string', nullable: true },
+                        timestamp: { type: 'string', format: 'date-time' },
+                        location: {
+                            type: 'object',
+                            nullable: true,
+                            properties: {
+                                id: { type: 'string' },
+                                latitude: { type: 'number' },
+                                longitude: { type: 'number' },
+                                accuracy: { type: 'number' },
+                            },
+                        },
+                        mobileNetworkInfo: {
+                            type: 'object',
+                            nullable: true,
+                            properties: {
+                                id: { type: 'string' },
+                                carrier: { type: 'string' },
+                                networkType: { type: 'string' },
+                                signalLevel: { type: 'integer' },
+                                signalDbm: { type: 'integer' },
+                                mcc: { type: 'string' },
+                                mnc: { type: 'string' },
+                            },
+                        },
+
+                    }
+                },
             },
+            security: [{ bearerAuth: [] }],
         },
-        security: [{ bearerAuth: [] }],
     },
     apis: [
         path.resolve(__dirname, '../controllers/auth.controller.js'),
