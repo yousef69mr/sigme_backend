@@ -103,8 +103,8 @@ const swaggerSpec = swaggerJsdoc({
                     }
                 },
             },
-            security: [{ bearerAuth: [] }],
         },
+        security: [{ bearerAuth: [] }],
     },
     apis: [
         path.resolve(__dirname, '../controllers/auth.controller.js'),
