@@ -102,6 +102,47 @@ const swaggerSpec = swaggerJsdoc({
 
                     }
                 },
+                Contact: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: 'clwx7fxvq0001kwn4t3d2drcg'
+                        },
+                        phone: {
+                            type: 'string',
+                            example: '+201234567890'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'contact@example.com'
+                        },
+                        contactName: {
+                            type: 'string',
+                            example: 'Ahmed Ali'
+                        },
+                        type: {
+                            type: 'string',
+                            enum: ['EMERGENCY', 'FAVORITE'],
+                            example: 'EMERGENCY'
+                        },
+                        userId: {
+                            type: 'string',
+                            example: 'clwx7fxk80000kwn4lw5b9fdr'
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-19T20:00:00.000Z'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-19T20:05:00.000Z'
+                        }
+                    },
+                    required: ['id', 'phone', 'email', 'type', 'userId']
+                }
             },
         },
         security: [{ bearerAuth: [] }],
@@ -111,6 +152,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, '../controllers/users.controller.js'),
         path.resolve(__dirname, '../controllers/devices.controller.js'),
         path.resolve(__dirname, '../controllers/connectivity.controller.js'),
+        path.resolve(__dirname, '../controllers/contacts.controller.js'),
     ], // path to files with JSDoc comments
 });
 
