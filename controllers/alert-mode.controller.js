@@ -187,26 +187,60 @@ router.patch('/:id', verifyToken, async (req, res) => {
  * /api/alert-modes/{id}:
  *   delete:
  *     summary: Delete an alert mode (Admin only)
- *     tags: [AlertMode]
+ *     description: |
+ *       Deletes an alert mode by its ID.
+ *       - Only admins are allowed to delete.
+ *       - Deletion is forbidden if:
+ *         - The record is the first created alert mode.
+ *         - It is the last remaining alert mode.
+ *     tags:
+ *       - AlertMode
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: The ID of the alert mode to delete.
  *         schema:
  *           type: string
- *         description: AlertMode ID
  *     responses:
  *       200:
- *         description: Deleted successfully
+ *         description: Alert mode deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Alert mode deleted
+ *                 deleted:
+ *                   $ref: '#/components/schemas/AlertMode'
+ *       400:
+ *         description: Cannot delete the last remaining alert mode.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Cannot delete the last remaining alert mode.
  *       403:
- *         description: Forbidden
- *       404:
- *         description: Not found
+ *         description: Forbidden – either not admin or trying to delete protected record.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Forbidden: Cannot delete the first alert mode.
  *       500:
- *         description: Internal server error
+ *         description: Internal server error.
  */
+
 router.delete('/:id', verifyToken, async (req, res) => {
     const user = req.user;
     if (user.role !== UserRole.ADMIN) return res.status(403).json({ message: 'Forbidden' });
@@ -220,6 +254,11 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
         if (firstRecord && firstRecord.id === id) {
             return res.status(403).json({ message: 'Forbidden: Cannot delete the first alert mode.' });
+        }
+
+        const totalCount = await db.alertMode.count();
+        if (totalCount <= 1) {
+            return res.status(400).json({ message: 'Cannot delete the last remaining alert mode.' });
         }
 
         const deleted = await db.alertMode.delete({ where: { id: req.params.id } });
