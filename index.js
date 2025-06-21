@@ -9,6 +9,7 @@ import locationRouter from './controllers/locations/locations.controller.js'
 import mobileNetworkInfoRouter from './controllers/mobile-network/mobile-network.controller.js'
 import connectivityRouter from './controllers/connectivity.controller.js'
 import contactRouter from './controllers/contacts.controller.js'
+import alertModesRouter from './controllers/alert-mode.controller.js'
 import swaggerRoutes from './controllers/swagger.controller.js'
 
 import { PORT } from './lib/constants/config.js'
@@ -34,6 +35,7 @@ app.use('/api/devices', devicesInfoRouter);
 app.use('/api/locations', locationRouter);
 app.use('/api/connectivity', connectivityRouter);
 app.use('/api/contacts', contactRouter);
+app.use('/api/alert-modes', alertModesRouter)
 app.use('/api/mobile-network-info', mobileNetworkInfoRouter);
 app.use(swaggerRoutes);
 

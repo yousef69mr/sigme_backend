@@ -142,7 +142,40 @@ const swaggerSpec = swaggerJsdoc({
                         }
                     },
                     required: ['id', 'phone', 'email', 'type', 'userId']
+                },
+                AlertMode: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: '60c72b2f9eb1f0a5c8d6f99d'
+                        },
+                        key: {
+                            type: 'string',
+                            example: 'silent_mode'
+                        },
+                        label: {
+                            type: 'string',
+                            example: 'Silent Mode'
+                        },
+                        description: {
+                            type: 'string',
+                            example: 'No sound or vibration will be triggered'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-21T18:20:30Z'
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-20T14:15:10Z'
+                        }
+                    },
+                    required: ['id', 'key', 'label']
                 }
+
             },
         },
         security: [{ bearerAuth: [] }],
@@ -153,6 +186,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, '../controllers/devices.controller.js'),
         path.resolve(__dirname, '../controllers/connectivity.controller.js'),
         path.resolve(__dirname, '../controllers/contacts.controller.js'),
+        path.resolve(__dirname, '../controllers/alert-mode.controller.js'),
     ], // path to files with JSDoc comments
 });
 
