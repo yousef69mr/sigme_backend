@@ -132,8 +132,24 @@ router.post("/register", async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const defaultAlertMode = await db.alertMode.findFirst();
+
+        const userData = {
+            name,
+            phone,
+            email,
+            password: hashedPassword,
+            gender,
+        };
+
+        if (defaultAlertMode) {
+            userData.alertMode = {
+                connect: { id: defaultAlertMode.id }
+            };
+        }
+
         const user = await db.user.create({
-            data: { name, phone, email, password: hashedPassword, gender }
+            data: userData
         });
 
         const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: "7d" });
