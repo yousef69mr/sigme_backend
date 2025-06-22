@@ -92,7 +92,7 @@ router.post('/', verifyToken, async (req, res) => {
     const user = req.user;
 
     if (!user) {
-        res.status(401).json({ message: 'Unauthorized' });
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const { connectivityType, deviceId, location, mobileNetworkInfo, ...rest } = req.body;
@@ -265,8 +265,9 @@ router.put('/:id', verifyToken, async (req, res) => {
                 }
             }
         })
-        if (!log || user.role != UserRole.ADMIN) {
-            res.status(401).json({ message: 'Unauthorized' });
+
+        if (!log || (log.device.userId !== user.id && user.role !== UserRole.ADMIN)) {
+            return res.status(401).json({ message: 'Unauthorized' });
         }
 
         const connectivity = await db.connectivityInfo.update({
@@ -323,8 +324,8 @@ router.delete('/:id', verifyToken, async (req, res) => {
         }
     })
 
-    if (!log || user.role != UserRole.ADMIN) {
-        res.status(401).json({ message: 'Unauthorized' });
+    if (!log || (log.device.userId !== user.id && user.role !== UserRole.ADMIN)) {
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     try {
