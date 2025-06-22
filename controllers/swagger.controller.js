@@ -260,6 +260,7 @@ const swaggerSpec = swaggerJsdoc({
                         device: { $ref: '#/components/schemas/DeviceInfo' },
                         connectivityInfo: { $ref: '#/components/schemas/ConnectivityLog' },
                     },
+                    required: ['id', 'mechanism', 'message', 'type', 'status']
                 },
             },
         },
