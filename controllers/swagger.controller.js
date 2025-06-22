@@ -212,6 +212,9 @@ const swaggerSpec = swaggerJsdoc({
                             type: 'string',
                             example: '60c72b2f9eb1f0a5c8d6f99d'
                         },
+                        alertMode: {
+                            $ref: '#/components/schemas/AlertMode'
+                        },
                         createdAt: {
                             type: 'string',
                             format: 'date-time',

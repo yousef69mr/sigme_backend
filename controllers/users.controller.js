@@ -23,12 +23,18 @@ const router = express.Router();
  *               $ref: '#/components/schemas/User'
  *       403:
  *         description: Forbidden
+ *       404:
+ *         description: User not found
  */
 router.get('/active_user', verifyToken, async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const foundUser = await db.user.findUnique({ where: { id: userId } });
+        const foundUser = await db.user.findUnique({
+            where: { id: userId }, include: {
+                alertMode: true
+            }
+        });
 
         if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
@@ -42,7 +48,7 @@ router.get('/active_user', verifyToken, async (req, res) => {
  * @swagger
  * /api/users:
  *   get:
- *     summary: Get all users
+ *     summary: Get all users (admin only)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -55,7 +61,10 @@ router.get('/active_user', verifyToken, async (req, res) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
  */
+
 router.get('/', verifyToken, async (req, res) => {
 
     const user = req.user;
@@ -65,7 +74,11 @@ router.get('/', verifyToken, async (req, res) => {
     }
 
     try {
-        const users = await db.user.findMany();
+        const users = await db.user.findMany({
+            include: {
+                alertMode: true
+            }
+        });
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
@@ -88,6 +101,7 @@ router.get('/', verifyToken, async (req, res) => {
  *           type: string
  *         description: The user ID
  *     requestBody:
+ *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
@@ -113,9 +127,14 @@ router.get('/', verifyToken, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: User not found
  */
+
 router.patch('/:userId', verifyToken, async (req, res) => {
     const { userId } = req.params;
     const user = req.user;
@@ -161,6 +180,9 @@ router.patch('/:userId', verifyToken, async (req, res) => {
         const updatedUser = await db.user.update({
             where: { id: userId },
             data: { name, email, password: hashedPassword, phone, gender, avatar },
+            include: {
+                alertMode: true
+            }
         });
 
         res.status(200).json(updatedUser);
@@ -190,7 +212,10 @@ router.patch('/:userId', verifyToken, async (req, res) => {
  *         description: User deleted
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: User not found
  */
+
 router.delete('/:userId', verifyToken, async (req, res) => {
     const { userId } = req.params;
     const user = req.user;
@@ -227,6 +252,8 @@ router.delete('/:userId', verifyToken, async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - alertModeId
  *             properties:
  *               alertModeId:
  *                 type: string
@@ -238,6 +265,8 @@ router.delete('/:userId', verifyToken, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: alertModeId is missing
  *       401:
  *         description: Unauthorized
  *       404:
@@ -252,6 +281,10 @@ router.patch('/:userId/alert-mode', verifyToken, async (req, res) => {
     }
 
     const { alertModeId } = req.body;
+
+    if (!alertModeId) {
+        return res.status(400).json({ message: 'alertModeId is missing' });
+    }
 
     try {
         const existingUser = await db.user.findUnique({ where: { id: userId } });
@@ -269,6 +302,9 @@ router.patch('/:userId/alert-mode', verifyToken, async (req, res) => {
                     }
                 }
             },
+            include: {
+                alertMode: true
+            }
         });
 
         res.status(200).json(updatedUser);
