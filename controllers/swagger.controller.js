@@ -64,7 +64,8 @@ const swaggerSpec = swaggerJsdoc({
                         hardwareConcurrency: { type: 'integer' },
                         deviceMemory: { type: 'number' },
                         userId: { type: 'string' },
-                    }
+                    },
+                    required: ['id', 'platform']
                 },
                 ConnectivityLog: {
                     type: 'object',
@@ -174,8 +175,56 @@ const swaggerSpec = swaggerJsdoc({
                         }
                     },
                     required: ['id', 'key', 'label']
+                },
+                User: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: '60d0fe4f5311236168a109ca'
+                        },
+                        name: {
+                            type: 'string',
+                            example: 'Yousef Ali'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'yousef@example.com'
+                        },
+                        phone: {
+                            type: 'string',
+                            example: '+201234567890'
+                        },
+                        gender: {
+                            type: 'string',
+                            example: 'male'
+                        },
+                        avatar: {
+                            type: 'string',
+                            example: '/users/60d0fe4f5311236168a109ca/avatar.png'
+                        },
+                        role: {
+                            type: 'string',
+                            enum: ['USER', 'ADMIN'],
+                            example: 'USER'
+                        },
+                        alertModeId: {
+                            type: 'string',
+                            example: '60c72b2f9eb1f0a5c8d6f99d'
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-20T14:15:10Z'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2025-06-21T18:20:30Z'
+                        }
+                    },
+                    required: ['id', 'name', 'email', 'phone', 'role']
                 }
-
             },
         },
         security: [{ bearerAuth: [] }],

@@ -236,7 +236,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Forbidden: Cannot delete the first alert mode.
+ *                   example: Forbidden - Cannot delete the first alert mode.
  *       500:
  *         description: Internal server error.
  */
@@ -253,7 +253,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
         });
 
         if (firstRecord && firstRecord.id === id) {
-            return res.status(403).json({ message: 'Forbidden: Cannot delete the first alert mode.' });
+            return res.status(403).json({ message: 'Cannot delete the first alert mode.' });
         }
 
         const totalCount = await db.alertMode.count();

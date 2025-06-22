@@ -17,6 +17,10 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: The active user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       403:
  *         description: Forbidden
  */
@@ -45,6 +49,12 @@ router.get('/active_user', verifyToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
  */
 router.get('/', verifyToken, async (req, res) => {
 
@@ -99,6 +109,10 @@ router.get('/', verifyToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: User updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       401:
  *         description: Unauthorized
  */
@@ -189,6 +203,77 @@ router.delete('/:userId', verifyToken, async (req, res) => {
         await db.user.delete({ where: { id: userId } });
         res.status(204).send();
     } catch (error) {
+        res.status(500).json({ message: 'Internal error' });
+    }
+});
+
+/**
+ * @swagger
+ * /api/users/{userId}/alert-mode:
+ *   patch:
+ *     summary: Update user's alert mode
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               alertModeId:
+ *                 type: string
+ *                 example: "60f5a4c1b6f1a2b3c4d5e6f7"
+ *     responses:
+ *       200:
+ *         description: Alert mode updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.patch('/:userId/alert-mode', verifyToken, async (req, res) => {
+    const { userId } = req.params;
+    const user = req.user;
+
+    if (user.id !== userId && user.role !== 'ADMIN') {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { alertModeId } = req.body;
+
+    try {
+        const existingUser = await db.user.findUnique({ where: { id: userId } });
+
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const updatedUser = await db.user.update({
+            where: { id: userId },
+            data: {
+                alertMode: {
+                    connect: {
+                        id: alertModeId
+                    }
+                }
+            },
+        });
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Internal error' });
     }
 });
