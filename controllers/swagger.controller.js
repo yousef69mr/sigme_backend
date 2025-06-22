@@ -227,7 +227,40 @@ const swaggerSpec = swaggerJsdoc({
                         }
                     },
                     required: ['id', 'name', 'email', 'phone', 'role']
-                }
+                },
+                Alert: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', example: '666123abcde4567890123def' },
+                        type: {
+                            type: 'string',
+                            enum: ['LOW_SIGNAL', 'HIGH_LATENCY', 'DEVICE_DISCONNECT', 'BATTERY_LOW'],
+                            example: 'LOW_SIGNAL',
+                        },
+                        message: { type: 'string', example: 'Low signal detected on your device' },
+                        mechanism: {
+                            type: 'string',
+                            enum: ['manual_alert', 'auto_alert'],
+                            example: 'manual_alert',
+                        },
+                        status: {
+                            type: 'string',
+                            enum: ['PENDING', 'CONFIRMED', 'DISMISSED'],
+                            example: 'PENDING',
+                        },
+                        resolvedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            nullable: true,
+                            example: '2025-06-22T22:15:00Z',
+                        },
+                        createdAt: { type: 'string', format: 'date-time', example: '2025-06-22T21:00:00Z' },
+                        updatedAt: { type: 'string', format: 'date-time', example: '2025-06-22T21:30:00Z' },
+                        user: { $ref: '#/components/schemas/User' },
+                        device: { $ref: '#/components/schemas/DeviceInfo' },
+                        connectivityInfo: { $ref: '#/components/schemas/ConnectivityLog' },
+                    },
+                },
             },
         },
         security: [{ bearerAuth: [] }],
@@ -238,6 +271,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, '../controllers/devices.controller.js'),
         path.resolve(__dirname, '../controllers/connectivity.controller.js'),
         path.resolve(__dirname, '../controllers/contacts.controller.js'),
+        path.resolve(__dirname, '../controllers/alerts.controller.js'),
         path.resolve(__dirname, '../controllers/alert-mode.controller.js'),
     ], // path to files with JSDoc comments
 });

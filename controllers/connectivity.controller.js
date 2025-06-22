@@ -4,7 +4,7 @@ import { db } from '../lib/database.js';
 // import jwt from 'jsonwebtoken'
 import { verifyToken } from '../lib/auth.js'
 import { getOrCreateFuzzyLocation } from '../lib/helpers/coordinates.js';
-import { UserRole } from '@prisma/client';
+import { UserRole, AlertType, AlertMechanism, AlertStatus } from '@prisma/client';
 
 const router = express.Router();
 
@@ -339,21 +339,44 @@ router.delete('/:id', verifyToken, async (req, res) => {
 /**
  * @swagger
  * /api/connectivity/ping:
- *   get:
- *     summary: Lightweight ping to check connectivity and update lastPinged if needed
+ *   post:
+ *     summary: Ping a device and optionally trigger alert if mobile signal is weak
  *     tags: [Connectivity]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: deviceId
- *         schema:
- *           type: string
- *         required: true
- *         description: Device ID to update lastPinged
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - deviceId
+ *             properties:
+ *               deviceId:
+ *                 type: string
+ *                 example: "665a7cc0cf8a973db4fcce4c"
+ *               signalDbm:
+ *                 type: integer
+ *                 example: -105
+ *               signalLevel:
+ *                 type: integer
+ *                 example: 1
+ *               carrier:
+ *                 type: string
+ *                 example: "Vodafone"
+ *               networkType:
+ *                 type: string
+ *                 example: "4G"
+ *               mcc:
+ *                 type: string
+ *                 example: "602"
+ *               mnc:
+ *                 type: string
+ *                 example: "01"
  *     responses:
  *       200:
- *         description: Connectivity verified
+ *         description: Ping processed
  *         content:
  *           application/json:
  *             schema:
@@ -362,34 +385,63 @@ router.delete('/:id', verifyToken, async (req, res) => {
  *                 status:
  *                   type: string
  *                   example: connected
- *                 userId:
- *                   type: string
  *                 deviceId:
  *                   type: string
  *                 lastPinged:
  *                   type: string
  *                   format: date-time
+ *                 warning:
+ *                   type: string
+ *                   example: Low signal detected
+ *                 pendingAlert:
+ *                   type: object
+ *                   description: Returned only for manual alert mechanism
  *       400:
- *         description: Missing deviceId
+ *         description: Missing required data
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Device not found
+ *         description: Device not found or unauthorized
+ *       500:
+ *         description: Internal server error
  */
-router.get('/ping', verifyToken, async (req, res) => {
+
+/**
+ * Ping a device to update lastPinged and evaluate mobile network status.
+ * If mobile signal is weak (signalDbm ≤ -100 or signalLevel ≤ 1),
+ * creates a ConnectivityInfo record and triggers alert based on user's AlertMode.
+ *
+ * @route POST /api/connectivity/ping
+ * @access Private (requires bearer token)
+ * @param {string} deviceId - ID of the device
+ * @param {number} [signalDbm] - Signal strength in dBm
+ * @param {number} [signalLevel] - Signal level (0–4)
+ * @param {string} [carrier] - Network carrier name
+ * @param {string} [networkType] - Network type (e.g., "4G", "5G")
+ * @param {string} [mcc] - Mobile Country Code
+ * @param {string} [mnc] - Mobile Network Code
+ * @returns {object} 200 - Status, lastPinged, warning, and alert (if any)
+ */
+
+router.post('/ping', verifyToken, async (req, res) => {
     const user = req.user;
-    const { deviceId } = req.query;
+    const {
+        deviceId,
+        signalDbm,
+        signalLevel,
+        carrier,
+        networkType,
+        mcc,
+        mnc
+    } = req.body;
 
     if (!deviceId) {
-        return res.status(400).json({ message: 'Missing deviceId' });
+        return res.status(400).json({ message: 'deviceId is required' });
     }
 
     try {
         const device = await db.deviceInfo.findFirst({
-            where: {
-                id: deviceId,
-                userId: user.id,
-            },
+            where: { id: deviceId, userId: user.id },
         });
 
         if (!device) {
@@ -397,9 +449,10 @@ router.get('/ping', verifyToken, async (req, res) => {
         }
 
         const now = new Date();
-        const minutes = 5;
+        const MINUTES = 5;
+
         const shouldUpdate =
-            !device.lastPinged || (now - new Date(device.lastPinged)) > minutes * 60 * 1000;
+            !device.lastPinged || (now - new Date(device.lastPinged)) > MINUTES * 60 * 1000;
 
         if (shouldUpdate) {
             await db.deviceInfo.update({
@@ -408,17 +461,79 @@ router.get('/ping', verifyToken, async (req, res) => {
             });
         }
 
+        // Check signal strength
+        const parsedDbm = parseInt(signalDbm);
+        const parsedLevel = parseInt(signalLevel);
+        const isLowSignal =
+            (!isNaN(parsedDbm) && parsedDbm <= -100) ||
+            (!isNaN(parsedLevel) && parsedLevel <= 1);
+
+        let pendingAlert = null;
+
+        if (isLowSignal) {
+            const mobileNetworkInfo = await db.mobileNetworkInfo.create({
+                data: {
+                    carrier,
+                    networkType,
+                    signalDbm: parsedDbm,
+                    signalLevel: parsedLevel,
+                    mcc,
+                    mnc,
+                },
+            });
+
+            const connectivityLog = await db.connectivityInfo.create({
+                data: {
+                    deviceId: device.id,
+                    connectivityType: 'mobile',
+                    isConnected: false,
+                    mobileNetworkInfoId: mobileNetworkInfo.id,
+                },
+            });
+
+            const userWithAlert = await db.user.findUnique({
+                where: { id: user.id },
+                include: { alertMode: true },
+            });
+
+            const mechanism = userWithAlert?.alertMode?.key;
+
+            if (mechanism === AlertMechanism.auto_alert) {
+                console.log(`AUTO ALERT: Triggering action`);
+                // await sendSms(user.phone, `Low signal detected on your device`);
+                await sendEmail(user.email, 'Low Signal Alert', 'Your device has low signal.');
+            } else if (mechanism === AlertMechanism.manual_alert) {
+                console.log(`MANUAL ALERT: Saving alert for confirmation`);
+                pendingAlert = await db.alert.create({
+                    data: {
+                        userId: user.id,
+                        deviceId: device.id,
+                        connectivityInfoId: connectivityLog.id,
+                        type: AlertType.LOW_SIGNAL,
+                        message: `Low signal detected on your device`,
+                        mechanism: AlertMechanism.manual_alert,
+                        // status: AlertStatus.PENDING,
+                    },
+                });
+            } else {
+                console.log(`UNKNOWN MECHANISM: No alert triggered`);
+            }
+        }
+
         return res.status(200).json({
             status: 'connected',
-            userId: user.id,
             deviceId: device.id,
             lastPinged: shouldUpdate ? now : device.lastPinged,
+            ...(isLowSignal && { warning: 'Low signal detected' }),
+            ...(pendingAlert && { pendingAlert })
         });
+
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+        return res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
+
 
 /**
  * @swagger

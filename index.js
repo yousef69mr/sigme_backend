@@ -10,6 +10,7 @@ import mobileNetworkInfoRouter from './controllers/mobile-network/mobile-network
 import connectivityRouter from './controllers/connectivity.controller.js'
 import contactRouter from './controllers/contacts.controller.js'
 import alertModesRouter from './controllers/alert-mode.controller.js'
+import alertsRouter from './controllers/alerts.controller.js'
 import swaggerRoutes from './controllers/swagger.controller.js'
 
 import { PORT } from './lib/constants/config.js'
@@ -36,6 +37,7 @@ app.use('/api/locations', locationRouter);
 app.use('/api/connectivity', connectivityRouter);
 app.use('/api/contacts', contactRouter);
 app.use('/api/alert-modes', alertModesRouter)
+app.use('/api/alerts', alertsRouter)
 app.use('/api/mobile-network-info', mobileNetworkInfoRouter);
 app.use(swaggerRoutes);
 
@@ -46,8 +48,3 @@ app.get("/", (req, res) => res.send("Express on Vercel"));
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-// module.exports = app;
-
-//app.listen(8080, () => console.log('Server has started on port 8080'))
