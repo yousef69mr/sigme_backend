@@ -6,7 +6,7 @@ import userRouter from './controllers/users.controller.js'
 import authRouter from './controllers/auth.controller.js'
 import devicesInfoRouter from './controllers/devices.controller.js'
 import locationRouter from './controllers/locations.controller.js'
-import mobileNetworkInfoRouter from './controllers/mobile-network/mobile-network.controller.js'
+import mobileNetworkInfoRouter from './controllers/mobile-network.controller.js'
 import connectivityRouter from './controllers/connectivity.controller.js'
 import contactRouter from './controllers/contacts.controller.js'
 import alertModesRouter from './controllers/alert-mode.controller.js'
@@ -38,7 +38,7 @@ app.use('/api/connectivity', connectivityRouter);
 app.use('/api/contacts', contactRouter);
 app.use('/api/alert-modes', alertModesRouter)
 app.use('/api/alerts', alertsRouter)
-app.use('/api/mobile-network-info', mobileNetworkInfoRouter);
+app.use('/api/mobile-network', mobileNetworkInfoRouter);
 app.use(swaggerRoutes);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
