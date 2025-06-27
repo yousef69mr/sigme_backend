@@ -1,7 +1,8 @@
 import express from 'express';
 import { db } from '../lib/database.js';
 import { verifyToken } from '../lib/auth.js'
-import { AlertStatus } from '@prisma/client'
+import { AlertStatus, ContactTypeEnum } from '@prisma/client'
+import {sendEmail} from '../lib/notifications.js'
 
 const router = express.Router();
 /**
@@ -90,7 +91,7 @@ router.post('/:id/confirm', verifyToken, async (req, res) => {
         if (userEmergencyContacts.length > 0) {
             await sendEmail(userEmergencyContacts[0].email, 'Low Signal Alert', alert.message);
         } else {
-            await sendEmail(user.email, 'Low Signal Alert',  alert.message);
+            await sendEmail(user.email, 'Low Signal Alert', alert.message);
         }
 
         res.json({ message: 'Alert confirmed and action triggered', alert: updatedAlert });

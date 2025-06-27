@@ -5,6 +5,7 @@ import { db } from '../lib/database.js';
 import { verifyToken } from '../lib/auth.js'
 import { getOrCreateFuzzyLocation } from '../lib/helpers/coordinates.js';
 import { UserRole, AlertType, AlertMechanism, ContactTypeEnum } from '@prisma/client';
+import { sendEmail } from '../lib/notifications.js'
 
 const router = express.Router();
 
