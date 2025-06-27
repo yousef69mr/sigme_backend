@@ -80,7 +80,18 @@ router.post('/:id/confirm', verifyToken, async (req, res) => {
 
         console.log(`Triggering action for confirmed alert ${alert.id}`);
 
-        await sendEmail(alert.user.email, `Confirmed Alert: ${alert.message}`);
+        const userEmergencyContacts = await db.contact.findMany({
+            where: {
+                userId: alert.user.id,
+                type: ContactTypeEnum.EMERGENCY
+            }
+        })
+
+        if (userEmergencyContacts.length > 0) {
+            await sendEmail(userEmergencyContacts[0].email, 'Low Signal Alert', alert.message);
+        } else {
+            await sendEmail(user.email, 'Low Signal Alert',  alert.message);
+        }
 
         res.json({ message: 'Alert confirmed and action triggered', alert: updatedAlert });
     } catch (err) {

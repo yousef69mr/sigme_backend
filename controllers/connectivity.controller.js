@@ -4,7 +4,7 @@ import { db } from '../lib/database.js';
 // import jwt from 'jsonwebtoken'
 import { verifyToken } from '../lib/auth.js'
 import { getOrCreateFuzzyLocation } from '../lib/helpers/coordinates.js';
-import { UserRole, AlertType, AlertMechanism, AlertStatus } from '@prisma/client';
+import { UserRole, AlertType, AlertMechanism, ContactTypeEnum } from '@prisma/client';
 
 const router = express.Router();
 
@@ -501,7 +501,19 @@ router.post('/ping', verifyToken, async (req, res) => {
             if (mechanism === AlertMechanism.auto_alert) {
                 console.log(`AUTO ALERT: Triggering action`);
                 // await sendSms(user.phone, `Low signal detected on your device`);
-                await sendEmail(user.email, 'Low Signal Alert', 'Your device has low signal.');
+
+                const userEmergencyContacts = await db.contact.findMany({
+                    where: {
+                        userId: user.id,
+                        type: ContactTypeEnum.EMERGENCY
+                    }
+                })
+
+                if (userEmergencyContacts.length > 0) {
+                    await sendEmail(userEmergencyContacts[0].email, 'Low Signal Alert', 'Your device has low signal.');
+                } else {
+                    await sendEmail(user.email, 'Low Signal Alert', 'Your device has low signal.');
+                }
             } else if (mechanism === AlertMechanism.manual_alert) {
                 console.log(`MANUAL ALERT: Saving alert for confirmation`);
                 pendingAlert = await db.alert.create({
