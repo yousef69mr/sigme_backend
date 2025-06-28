@@ -175,7 +175,7 @@ router.post('/', verifyToken, async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const connectivityLogs = await db.connectivityInfo.findMany({
-            include: { location: true, device: true, mobileNetworkInfo: true, },
+            include: { location: true, device: true, mobileNetworkInfo: true },
         });
         res.json(connectivityLogs);
     } catch (e) {

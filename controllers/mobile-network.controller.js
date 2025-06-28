@@ -114,8 +114,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', verifyToken, async (req, res) => {
   try {
     const mobileNetworkInfo = await db.mobileNetworkInfo.findUnique({
-      where: { id: req.params.id },
-      include: { connectivityLogs: true },
+      where: { id: req.params.id }
     });
     if (!mobileNetworkInfo) return res.status(404).json({ error: 'mobile network info not found' });
     res.json(mobileNetworkInfo);
