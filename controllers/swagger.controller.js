@@ -276,6 +276,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, '../controllers/alert-mode.controller.js'),
         path.resolve(__dirname, '../controllers/locations.controller.js'),
         path.resolve(__dirname, '../controllers/mobile-network.controller.js'),
+         path.resolve(__dirname, '../controllers/googlemap.controller.js'),
     ], // path to files with JSDoc comments
 });
 

@@ -12,6 +12,7 @@ import contactRouter from './controllers/contacts.controller.js'
 import alertModesRouter from './controllers/alert-mode.controller.js'
 import alertsRouter from './controllers/alerts.controller.js'
 import swaggerRoutes from './controllers/swagger.controller.js'
+import placesRoutes from './controllers/googlemap.controller.js'
 
 import { PORT } from './lib/constants/config.js'
 
@@ -39,6 +40,7 @@ app.use('/api/contacts', contactRouter);
 app.use('/api/alert-modes', alertModesRouter)
 app.use('/api/alerts', alertsRouter)
 app.use('/api/mobile-network', mobileNetworkInfoRouter);
+app.use('/api/places', placesRoutes)
 app.use(swaggerRoutes);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
